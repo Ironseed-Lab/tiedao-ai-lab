@@ -5,7 +5,6 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const hero = document.querySelector('#rail-scene');
 const stage = hero.querySelector('.scene-stage');
 const reticle = hero.querySelector('.scene-reticle');
-const toggle = hero.querySelector('.scene-toggle');
 const reduced = matchMedia('(prefers-reduced-motion: reduce)');
 
 function makeRail(points) {
@@ -16,7 +15,7 @@ function makeRail(points) {
 function addRail(scene, rail) {
   const samples = rail.getPoints(100);
   const offset = (point, delta) => point.clone().add(new THREE.Vector3(0, delta, 0));
-  const railMaterial = new THREE.LineBasicMaterial({ color: 0x5b9aef, transparent: true, opacity: .48 });
+  const railMaterial = new THREE.LineBasicMaterial({ color: 0x76c7aa, transparent: true, opacity: .48 });
   for (const edge of [-.085, .085]) {
     const geometry = new THREE.BufferGeometry().setFromPoints(samples.map(point => offset(point, edge)));
     scene.add(new THREE.Line(geometry, railMaterial));
@@ -25,7 +24,7 @@ function addRail(scene, rail) {
     .flatMap(point => [offset(point, -.14), offset(point, .14)]);
   scene.add(new THREE.LineSegments(
     new THREE.BufferGeometry().setFromPoints(sleepers),
-    new THREE.LineBasicMaterial({ color: 0x4669a8, transparent: true, opacity: .45 }),
+    new THREE.LineBasicMaterial({ color: 0x547767, transparent: true, opacity: .45 }),
   ));
 }
 
@@ -79,7 +78,7 @@ async function initialize() {
   const glow = signalTexture();
   const signals = [rail, branch, rail].map((route, index) => {
     const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
-      map: glow, color: index === 1 ? 0xff5b53 : 0x84b9ff,
+      map: glow, color: index === 1 ? 0xeab267 : 0x92ddbc,
       blending: THREE.AdditiveBlending, depthWrite: false, transparent: true,
     }));
     sprite.scale.setScalar(index === 1 ? .46 : .34);
@@ -125,12 +124,11 @@ async function initialize() {
 
   let frame = 0;
   let visible = true;
-  let paused = false;
   let time = 0;
   let previous = 0;
   const pointer = { x: 0, y: 0 };
   const baseTilt = { x: -.12, y: .18 };
-  const motion = () => !paused && !reduced.matches;
+  const motion = () => !document.documentElement.hasAttribute('data-motion-paused') && !reduced.matches;
 
   function render(now) {
     frame = 0;
@@ -193,14 +191,7 @@ async function initialize() {
   for (const event of ['pointerleave', 'pointercancel', 'pointerup']) {
     stage.addEventListener(event, resetPointer);
   }
-  toggle.addEventListener('click', () => {
-    paused = !paused;
-    toggle.textContent = paused ? '播放 3D 动效' : '暂停 3D 动效';
-    resetPointer();
-    restart();
-  });
-  reduced.addEventListener('change', () => {
-    toggle.hidden = reduced.matches;
+  window.addEventListener('site-motion-change', () => {
     resetPointer();
     restart();
   });
@@ -222,10 +213,8 @@ async function initialize() {
     sizes.disconnect();
     viewport.disconnect();
     delete hero.dataset.ready;
-    toggle.hidden = true;
     resetPointer();
   });
-  toggle.hidden = reduced.matches;
   resize();
   requestAnimationFrame(() => { hero.dataset.ready = ''; });
 }

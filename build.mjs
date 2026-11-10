@@ -6,10 +6,10 @@ for (const entry of ['index.html', 'styles.css', 'assets']) {
   await cp(entry, `dist/${entry}`, { recursive: true });
 }
 await build({
-  entryPoints: ['scene.js'],
+  entryPoints: ['site.js'],
   bundle: true,
   format: 'esm',
   minify: true,
   legalComments: 'eof',
-  outfile: 'dist/scene.js',
+  outfile: 'dist/site.js',
 });
