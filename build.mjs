@@ -2,15 +2,14 @@ import { cp, mkdir } from 'node:fs/promises';
 import { build } from 'esbuild';
 
 await mkdir('dist', { recursive: true });
-await mkdir('dist/assets', { recursive: true });
-for (const entry of ['index.html', 'styles.css', 'assets/badge.webp', 'assets/yard.svg']) {
-  await cp(entry, `dist/${entry}`);
+for (const entry of ['index.html', 'styles.css', 'assets']) {
+  await cp(entry, `dist/${entry}`, { recursive: true });
 }
 await build({
-  entryPoints: ['game.js'],
+  entryPoints: ['scene.js'],
   bundle: true,
   format: 'esm',
   minify: true,
   legalComments: 'eof',
-  outfile: 'dist/game.js',
+  outfile: 'dist/scene.js',
 });
